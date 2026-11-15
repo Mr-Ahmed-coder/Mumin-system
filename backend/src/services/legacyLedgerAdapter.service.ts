@@ -1,5 +1,6 @@
 import { Request } from 'express';
 import { env } from '../config/env';
+import { isExpandedLedgerEnabled } from '../config/features';
 import { CashSession } from '../models/CashSession';
 import { Transaction } from '../models/Transaction';
 import { ExchangeRate } from '../models/ExchangeRate';
@@ -19,7 +20,7 @@ async function validateOperation<T>(work: () => Promise<T>): Promise<T> {
   }
 }
 
-export const useLedgerIntegration = () => env.NODE_ENV === 'development';
+export const useLedgerIntegration = () => isExpandedLedgerEnabled();
 export const requestKey = (req: Request) => {
   const raw = req.get('Idempotency-Key') || req.body?.requestKey;
   const value = typeof raw === 'string' ? raw.trim() : undefined;

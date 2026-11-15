@@ -11,6 +11,7 @@
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "seed:admin": "npm run build && node dist/seeders/bootstrapAdmin.js",
+    "seed:demo": "npm run build && node dist/seeders/seedDemo.js",
     "test": "npm run build && node --test dist/tests/*.test.js",
     "test:authorization": "npm run build && node --test dist/tests/authorization.test.js",
     "test:currency-consistency": "npm run build && node --test dist/tests/currencyConsistency.test.js",

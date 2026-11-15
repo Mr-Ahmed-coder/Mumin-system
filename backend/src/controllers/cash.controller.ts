@@ -9,6 +9,7 @@ import { WalletProvider } from '../constants/wallets';
 import { AuditLog } from '../models/AuditLog';
 import { Types } from 'mongoose';
 import { env } from '../config/env';
+import { isExpandedLedgerEnabled } from '../config/features';
 import { ExchangeRate } from '../models/ExchangeRate';
 import { readLedgerBalances } from '../services/ledgerRead.service';
 import { closeLedgerShift, ledgerCloseInput, ledgerClosingEligibility, previewLedgerClose, reopenLedgerShift } from '../services/ledgerClosing.service';
@@ -26,7 +27,7 @@ import {
 const cashPaidUGX = (transaction: any): number =>
   transaction.cashPaidUGX ?? transaction.cashPaid ?? 0;
 
-const expandedOpeningEnabled = () => env.NODE_ENV === 'development';
+const expandedOpeningEnabled = () => isExpandedLedgerEnabled();
 export const getOpeningAccounts = asyncHandler(async (_req: Request, res: Response) => {
   if (!expandedOpeningEnabled()) throw ApiError.notFound('Development opening workflow is unavailable');
   return ApiResponse.success(res, 'Development opening account catalog', getOpeningAccountCatalog());

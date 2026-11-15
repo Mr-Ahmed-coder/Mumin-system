@@ -1,6 +1,7 @@
 import mongoose, { ClientSession, Types } from 'mongoose';
 import { z } from 'zod';
 import { env } from '../config/env';
+import { isExpandedLedgerEnabled } from '../config/features';
 import { UserRole } from '../constants/roles';
 import { AuthenticatedUser } from '../middlewares/auth';
 import { AuditLog } from '../models/AuditLog';
@@ -24,7 +25,7 @@ const factor = (currency: string) => currency === 'USD' ? 100 : 1;
 const revisionToken = (shift: ICashSession) => `${shift.movementRevision ?? 0}:${shift.closingHistory?.length ?? 0}`;
 
 export function ledgerClosingBlocker(shift: ICashSession): string | undefined {
-  if (env.NODE_ENV !== 'development') return 'Ledger closing is not enabled in this environment.';
+  if (!isExpandedLedgerEnabled()) return 'Ledger closing is not enabled in this environment.';
   if (shift.openingVersion !== 2) return 'This shift has no complete opening snapshot for USD Cash and UGX Cash.';
   if (shift.ledgerVersion !== 1) return 'This shift predates verified movement capture.';
   if (shift.status !== 'OPEN') return 'This shift is already closed.';
@@ -161,7 +162,7 @@ export const ledgerCloseInput = z.object({
 }).strict();
 
 async function closingShift(id: string, actor: AuthenticatedUser, session?: ClientSession) {
-  if (env.NODE_ENV !== 'development') throw ApiError.notFound();
+  if (!isExpandedLedgerEnabled()) throw ApiError.notFound();
   if (![UserRole.ADMIN, UserRole.MANAGER, UserRole.CASHIER].includes(actor.role)) throw ApiError.forbidden();
   if (!/^[a-f\d]{24}$/i.test(id)) throw ApiError.badRequest('Invalid shift ID');
   const shift = await CashSession.findById(id).session(session ?? null);
@@ -175,7 +176,7 @@ export async function previewLedgerClose(id: string, actor: AuthenticatedUser) {
 }
 
 export async function closeLedgerShift(id: string, actor: AuthenticatedUser, input: z.infer<typeof ledgerCloseInput>) {
-  if (env.NODE_ENV !== 'development') throw ApiError.notFound();
+  if (!isExpandedLedgerEnabled()) throw ApiError.notFound();
   input = ledgerCloseInput.parse(input);
   await AuditLog.init();
   const session = await mongoose.startSession();
@@ -213,7 +214,7 @@ export async function closeLedgerShift(id: string, actor: AuthenticatedUser, inp
 }
 
 export async function reopenLedgerShift(id: string, actor: AuthenticatedUser) {
-  if (env.NODE_ENV !== 'development') throw ApiError.notFound();
+  if (!isExpandedLedgerEnabled()) throw ApiError.notFound();
   if (actor.role !== UserRole.ADMIN && actor.role !== UserRole.MANAGER) throw ApiError.forbidden();
   await AuditLog.init();
   const session = await mongoose.startSession();

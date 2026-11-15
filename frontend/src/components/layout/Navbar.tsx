@@ -23,11 +23,16 @@ export default function Navbar({ compact = false }: { compact?: boolean }) {
   return (
     <header className="sticky top-0 z-30 flex min-h-20 items-center justify-between gap-4 border-b border-slate-800/80 bg-white/90 px-4 pl-[4.75rem] backdrop-blur-xl sm:px-6 sm:pl-[4.75rem] lg:top-4 lg:mx-4 lg:mt-4 lg:rounded-2xl lg:border lg:px-6 lg:shadow-card">
       <div className="min-w-0">
-        <p className="truncate text-sm font-extrabold text-ink">Financial Operations</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="truncate text-sm font-extrabold text-ink">Financial Operations</p>
+          <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-700 border border-amber-500/30">
+            DEMO MODE · NO REAL MONEY
+          </span>
+        </div>
         <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-500">
           <CalendarDays className="h-3.5 w-3.5" />
           <span>{today}</span>
-          <span className="hidden sm:inline">· Secure workspace</span>
+          <span className="hidden sm:inline">· 14-Day Owner Evaluation</span>
         </div>
       </div>
 

@@ -57,8 +57,11 @@ export default function Sidebar() {
               <Building2 className="h-6 w-6" />
             </div>
             <div>
-              <h1 className="text-sm font-bold tracking-wide text-[#ffffff]">MUMIN AGENT</h1>
-              <p className="mt-0.5 text-xs font-medium text-[#DCE4F2]">Financial workspace</p>
+              <div className="flex items-center gap-2">
+                <h1 className="text-sm font-bold tracking-wide text-[#ffffff]">MUMIN AGENT</h1>
+                <span className="rounded bg-amber-400 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-slate-950">DEMO</span>
+              </div>
+              <p className="mt-0.5 text-xs font-medium text-[#DCE4F2]">Trial Evaluation</p>
             </div>
           </div>
           <button type="button" onClick={() => setMobileOpen(false)} className="rounded-xl p-2 text-[#DCE4F2] hover:bg-white/10 lg:hidden" aria-label="Close navigation">

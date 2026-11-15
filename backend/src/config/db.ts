@@ -2,9 +2,9 @@ import mongoose from 'mongoose';
 import { env } from './env';
 import { logger } from './logger';
 
-export const connectDB = async (): Promise<void> => {
+export const connectDB = async (customUri?: string): Promise<void> => {
   try {
-    const conn = await mongoose.connect(env.MONGO_URI);
+    const conn = await mongoose.connect(customUri || env.MONGO_URI);
     logger.info(
       {
         environment: env.NODE_ENV,

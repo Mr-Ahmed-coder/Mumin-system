@@ -15,6 +15,7 @@ import { AuthenticatedUser } from '../middlewares/auth';
 import { ApiError } from '../utils/ApiError';
 import { UserRole } from '../constants/roles';
 import { env } from '../config/env';
+import { isExpandedLedgerEnabled } from '../config/features';
 import { Transaction } from '../models/Transaction';
 import { Customer } from '../models/Customer';
 
@@ -89,7 +90,7 @@ const validateFunds = async (shift: any, proposed: MovementLeg[], session: Clien
 };
 
 export const postAccountOperation = async (actor: AuthenticatedUser, raw: unknown, requestIdentity?: unknown) => {
-  if (env.NODE_ENV !== 'development') throw ApiError.notFound('Expanded account operations are development only');
+  if (!isExpandedLedgerEnabled()) throw ApiError.notFound('Expanded account operations are development only');
   const input = operationSchema.parse(raw);
   const hash = fingerprint(requestIdentity ?? input);
   return atomicLedgerRequest(actor, input.requestKey, hash, async session => {
@@ -178,7 +179,7 @@ export const postAccountOperation = async (actor: AuthenticatedUser, raw: unknow
 };
 
 export const reverseAccountOperation = async (actor: AuthenticatedUser, raw: unknown) => {
-  if (env.NODE_ENV !== 'development') throw ApiError.notFound('Expanded account operations are development only');
+  if (!isExpandedLedgerEnabled()) throw ApiError.notFound('Expanded account operations are development only');
   const input = z.object({ requestKey: z.string().min(8).max(100), operationId: z.string().regex(/^[a-f\d]{24}$/i), reason: z.string().trim().min(3).max(500) }).strict().parse(raw);
   return atomicLedgerRequest(actor, input.requestKey, fingerprint(input), async session => {
     const original = await FinancialOperation.findById(input.operationId).session(session);

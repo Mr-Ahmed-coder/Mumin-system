@@ -6,10 +6,12 @@ import { User } from '../models/User';
 import { ApiError } from '../utils/ApiError';
 import { env } from '../config/env';
 
+const isCrossSite = Boolean(env.CORS_ORIGIN && !env.CORS_ORIGIN.includes('localhost'));
+const useSecureCookie = env.NODE_ENV === 'production' || isCrossSite;
 const refreshCookieOptions = {
   httpOnly: true,
-  secure: env.NODE_ENV === 'production',
-  sameSite: env.NODE_ENV === 'production' ? ('none' as const) : ('lax' as const),
+  secure: useSecureCookie,
+  sameSite: useSecureCookie ? ('none' as const) : ('lax' as const),
   path: '/api/v1/auth',
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };

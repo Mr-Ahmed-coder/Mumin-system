@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { env } from '../config/env';
+import { isExpandedLedgerEnabled } from '../config/features';
 import { authenticate, authorize } from '../middlewares/auth';
 import { UserRole } from '../constants/roles';
 import { asyncHandler } from '../utils/asyncHandler';
@@ -15,7 +16,7 @@ import { ledgerMigrationDryRun } from '../services/ledgerRead.service';
 import { ledgerClosingEligibility } from '../services/ledgerClosing.service';
 
 const router = Router();
-router.use((_req, _res, next) => env.NODE_ENV === 'development' ? next() : next(ApiError.notFound()));
+router.use((_req, _res, next) => isExpandedLedgerEnabled() ? next() : next(ApiError.notFound()));
 router.use(authenticate, authorize(UserRole.ADMIN, UserRole.MANAGER, UserRole.CASHIER));
 const validated = async (operation: () => Promise<any>) => {
   try { return await operation(); }

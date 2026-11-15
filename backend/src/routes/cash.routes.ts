@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { env } from '../config/env';
+import { isExpandedLedgerEnabled } from '../config/features';
 import {
   getCurrentCashSession,
   getOpeningAccounts,
@@ -26,7 +27,7 @@ import {
 const router = Router();
 
 router.use(authenticate);
-if (env.NODE_ENV === 'development') {
+if (isExpandedLedgerEnabled()) {
   router.get('/opening-accounts', authorize(UserRole.ADMIN, UserRole.MANAGER, UserRole.CASHIER), getOpeningAccounts);
   router.post('/open-accounts', authorize(UserRole.ADMIN, UserRole.MANAGER, UserRole.CASHIER), openExpandedCashSession);
   router.get('/:id/ledger-close', authorize(UserRole.ADMIN, UserRole.MANAGER, UserRole.CASHIER), getLedgerClose);

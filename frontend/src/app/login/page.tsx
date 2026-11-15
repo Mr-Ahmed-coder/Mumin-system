@@ -78,9 +78,14 @@ export default function LoginPage() {
               <p className="mt-1 text-sm text-slate-500">Cash Exchange Management System</p>
             </div>
 
-            <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-blue-600">Welcome back</p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-blue-600">Welcome back</p>
+              <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-700 border border-amber-500/30">
+                14-Day Owner Demo
+              </span>
+            </div>
             <h2 className="mt-3 text-3xl font-black tracking-tight text-ink">Sign in to your workspace</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-500">Use your authorized Mumin Agent account to continue.</p>
+            <p className="mt-3 text-sm leading-6 text-slate-500">Evaluation environment with fictional test balances. No real money operations.</p>
 
             {error && (
               <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-600" role="alert">{error}</div>

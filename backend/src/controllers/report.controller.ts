@@ -4,6 +4,7 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { ApiResponse } from '../utils/ApiResponse';
 import ExcelJS from 'exceljs';
 import { env } from '../config/env';
+import { isExpandedLedgerEnabled } from '../config/features';
 import { ledgerMovementTotals } from '../services/ledgerRead.service';
 
 export const getComprehensiveReport = asyncHandler(async (req: Request, res: Response) => {
@@ -82,7 +83,7 @@ export const getComprehensiveReport = asyncHandler(async (req: Request, res: Res
     walletMap[wp].count += 1;
   });
   const walletDistribution = Object.values(walletMap).sort((a, b) => b.volumeUSD - a.volumeUSD);
-  const accountMovements = env.NODE_ENV === 'development' && !walletProvider && !customerId && (!status || status === 'COMPLETED')
+  const accountMovements = isExpandedLedgerEnabled() && !walletProvider && !customerId && (!status || status === 'COMPLETED')
     ? await ledgerMovementTotals(matchQuery.createdAt, matchQuery.cashierId) : undefined;
 
   return ApiResponse.success(res, 'Comprehensive report generated successfully', {

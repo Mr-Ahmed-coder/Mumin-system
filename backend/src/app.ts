@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import { env } from './config/env';
+import { isDevResetEnabled, isExpandedLedgerEnabled } from './config/features';
 import { errorHandler } from './middlewares/errorHandler';
 
 import authRoutes from './routes/auth.routes';
@@ -74,10 +75,14 @@ app.use(`${API_PREFIX}/exchange-rates`, exchangeRateRoutes);
 app.use(`${API_PREFIX}/internet-credits`, internetCreditRoutes);
 app.use(`${API_PREFIX}/customer-deposits`, customerDepositRoutes);
 
-// Development tools are intentionally absent from the production API surface.
-if (env.NODE_ENV === 'development') {
+// Development reset tools are disabled on demo or production environments.
+if (isDevResetEnabled()) {
   const developmentRoutes = require('./routes/development.routes').default;
   app.use(`${API_PREFIX}/development`, developmentRoutes);
+}
+
+// Expanded account operations are enabled in development or when DEMO_MODE=true.
+if (isExpandedLedgerEnabled()) {
   app.use(`${API_PREFIX}/account-operations`, require('./routes/accountOperations.routes').default);
 }
 
