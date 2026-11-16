@@ -27,6 +27,9 @@ import {
 const router = Router();
 
 router.use(authenticate);
+router.get('/opening-mode', authorize(UserRole.ADMIN, UserRole.MANAGER, UserRole.CASHIER), (_req, res) => {
+  res.json({ success: true, data: { expanded: isExpandedLedgerEnabled() } });
+});
 if (isExpandedLedgerEnabled()) {
   router.get('/opening-accounts', authorize(UserRole.ADMIN, UserRole.MANAGER, UserRole.CASHIER), getOpeningAccounts);
   router.post('/open-accounts', authorize(UserRole.ADMIN, UserRole.MANAGER, UserRole.CASHIER), openExpandedCashSession);
