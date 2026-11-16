@@ -59,6 +59,15 @@ export default function CashSessionsPage() {
   });
 
   const activeSession = currentData?.data;
+  const openingMode = useQuery<{ expanded: boolean }>({
+    queryKey: ['shiftOpeningMode', user?._id],
+    queryFn: async () => {
+      const { data } = await api.get('/cash-sessions/opening-mode');
+      if (typeof data?.data?.expanded !== 'boolean') throw new Error('Invalid opening mode');
+      return data.data;
+    },
+    enabled: Boolean(user && isOpenModalOpen),
+  });
   const ledgerClosing = activeSession?.ledgerVersion === 1 || activeSession?.openingVersion === 2;
   const pastSessions = pastData?.data || [];
 
@@ -347,14 +356,25 @@ export default function CashSessionsPage() {
       </div>
 
       {/* Open Shift Modal */}
-      {isOpenModalOpen && process.env.NODE_ENV === 'development' && (
+      {isOpenModalOpen && !openingMode.data && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4">
+          <section role="dialog" aria-modal="true" aria-label="Open Shift" className="w-full max-w-md space-y-4 rounded-2xl border border-line bg-white p-6 text-ink">
+            <p role={openingMode.isError ? 'alert' : 'status'}>
+              {openingMode.isError ? 'Could not verify which opening form this server supports.' : 'Checking available opening accounts…'}
+            </p>
+            {openingMode.isError && <button type="button" onClick={() => openingMode.refetch()} className="mr-4 font-semibold text-brand-600">Retry</button>}
+            <button type="button" onClick={() => setIsOpenModalOpen(false)} className="font-semibold">Cancel</button>
+          </section>
+        </div>
+      )}
+      {isOpenModalOpen && openingMode.data?.expanded === true && (
         <ExpandedOpeningForm close={() => setIsOpenModalOpen(false)} onOpened={() => {
           queryClient.invalidateQueries({ queryKey: ['activeCashSession'] });
           queryClient.invalidateQueries({ queryKey: ['cashSessionsList'] });
           setIsOpenModalOpen(false);
         }} />
       )}
-      {isOpenModalOpen && process.env.NODE_ENV !== 'development' && (
+      {isOpenModalOpen && openingMode.data?.expanded === false && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-slate-900 border border-slate-800 w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 shadow-2xl space-y-6">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">

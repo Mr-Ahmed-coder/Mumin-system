@@ -29,7 +29,7 @@ export default function ExpandedOpeningForm({ close, onOpened }: { close: () => 
   return <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-3 backdrop-blur-sm">
     <section role="dialog" aria-modal="true" aria-labelledby="opening-title" className="max-h-[92vh] w-full max-w-2xl space-y-5 overflow-y-auto rounded-2xl border border-blue-100 bg-white p-5 shadow-xl sm:p-7">
       <div className="flex items-center justify-between gap-4"><h2 id="opening-title" className="text-xl font-bold text-[#162447]">{review ? 'Review & Confirm' : 'Open Shift'}</h2><button disabled={opening.isPending} onClick={close} aria-label="Close opening form" className="min-h-11 rounded-xl px-3 text-[#6B7A99]">Close</button></div>
-      <p className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">Development only. Expanded account closing is blocked until movement capture is complete. Use test balances only.</p>
+      <p className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">Use test balances only. Closing requires verified account movements.</p>
       {catalog.isLoading || rate.isLoading ? <p role="status">Loading accounts and rate…</p> : catalog.isError || rate.isError ?
         <div role="alert">Unable to load opening information. <button onClick={() => { catalog.refetch(); rate.refetch(); }} className="min-h-11 px-3 text-blue-700 underline">Retry</button></div> : <>
         {(['CASH', 'WALLET'] as const).map(kind => <section key={kind} className="space-y-3"><h3 className="font-bold text-[#162447]">{kind === 'CASH' ? '1. Cash Balances' : '2. Wallet Balances'}</h3>
