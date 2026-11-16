@@ -21,6 +21,13 @@ import {
   FileSpreadsheet,
 } from 'lucide-react';
 
+type ReportAmount = number | null | undefined;
+type ReportBreakdown = { name: string; volumeUSD?: ReportAmount; feeUSD?: ReportAmount; volume?: ReportAmount; fee?: ReportAmount; count: number };
+const money = (currency: 'USD' | 'UGX', current: ReportAmount, legacy?: ReportAmount) => {
+  const value = current ?? legacy;
+  return typeof value === 'number' && Number.isFinite(value) ? `${currency} ${value.toLocaleString()}` : '—';
+};
+
 export default function ReportsPage() {
   // Preset Date Quick Select
   const [dateRangePreset, setDateRangePreset] = useState<'today' | 'weekly' | 'monthly' | 'custom'>('today');
@@ -96,9 +103,9 @@ export default function ReportsPage() {
 
   const summary = reportData?.summary;
   const transactions: Transaction[] = reportData?.transactions || [];
-  const topCashiers: any[] = reportData?.topCashiers || [];
-  const topCustomers: any[] = reportData?.topCustomers || [];
-  const walletDistribution: any[] = reportData?.walletDistribution || [];
+  const topCashiers: ReportBreakdown[] = reportData?.topCashiers || [];
+  const topCustomers: (ReportBreakdown & { phone: string })[] = reportData?.topCustomers || [];
+  const walletDistribution: (Omit<ReportBreakdown, 'name'> & { provider: WalletProvider })[] = reportData?.walletDistribution || [];
   const accountMovements: { accountId: string; currency: 'USD' | 'UGX'; category: string; direction: 'IN' | 'OUT'; amount: number }[] | undefined = reportData?.accountMovements;
 
   const handlePrint = () => {
@@ -331,7 +338,7 @@ export default function ReportsPage() {
             <div className="p-5 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl space-y-1 print:bg-white print:border-gray-300">
               <span className="text-xs font-semibold text-slate-400 uppercase print:text-black">Total Cash Paid Out</span>
               <p className="text-2xl font-extrabold text-blue-400 print:text-black">
-                ${summary?.totalCashPaidOut?.toLocaleString() || '0'}
+                {money('UGX', summary?.totalCashPaidOutUGX, summary?.totalCashPaidOut)}
               </p>
             </div>
 
@@ -371,8 +378,8 @@ export default function ReportsPage() {
                       topCashiers.map((c, i) => (
                         <tr key={i} className="hover:bg-slate-800/30">
                           <td className="py-2.5 px-3 font-sans font-medium text-slate-200 print:text-black">{c.name}</td>
-                          <td className="py-2.5 px-3 text-right text-slate-100 print:text-black">${c.volume.toLocaleString()}</td>
-                          <td className="py-2.5 px-3 text-right text-ink print:text-black">${c.fee.toLocaleString()}</td>
+                          <td className="py-2.5 px-3 text-right text-slate-100 print:text-black">{money('USD', c.volumeUSD, c.volume)}</td>
+                          <td className="py-2.5 px-3 text-right text-ink print:text-black">{money('USD', c.feeUSD, c.fee)}</td>
                           <td className="py-2.5 px-3 text-right text-slate-400 print:text-black">{c.count}</td>
                         </tr>
                       ))
@@ -421,8 +428,8 @@ export default function ReportsPage() {
                           <td className="py-2.5 px-3 font-sans font-medium text-slate-200 print:text-black">
                             {WALLET_LABELS[w.provider as WalletProvider] || w.provider}
                           </td>
-                          <td className="py-2.5 px-3 text-right text-slate-100 print:text-black">${w.volume.toLocaleString()}</td>
-                          <td className="py-2.5 px-3 text-right text-ink print:text-black">${w.fee.toLocaleString()}</td>
+                          <td className="py-2.5 px-3 text-right text-slate-100 print:text-black">{money('USD', w.volumeUSD, w.volume)}</td>
+                          <td className="py-2.5 px-3 text-right text-ink print:text-black">{money('USD', w.feeUSD, w.fee)}</td>
                           <td className="py-2.5 px-3 text-right text-slate-400 print:text-black">{w.count}</td>
                         </tr>
                       ))
@@ -461,9 +468,9 @@ export default function ReportsPage() {
                             <div className="text-[10px] text-slate-500 print:text-gray-600">{cust.phone}</div>
                           </td>
                           <td className="py-2.5 px-3 text-right font-bold text-brand-600 print:text-black">
-                            ${cust.volume.toLocaleString()}
+                            {money('USD', cust.volumeUSD, cust.volume)}
                           </td>
-                          <td className="py-2.5 px-3 text-right text-ink print:text-black">${cust.fee.toLocaleString()}</td>
+                          <td className="py-2.5 px-3 text-right text-ink print:text-black">{money('USD', cust.feeUSD, cust.fee)}</td>
                         </tr>
                       ))
                     )}
@@ -522,13 +529,13 @@ export default function ReportsPage() {
                           {WALLET_LABELS[t.walletProvider] || t.walletProvider}
                         </td>
                         <td className="py-3.5 px-4 text-right font-semibold text-slate-100 print:text-black">
-                          ${t.amountReceived.toLocaleString()}
+                          {money('USD', t.amountReceivedUSD, t.amountReceived)}
                         </td>
                         <td className="py-3.5 px-4 text-right font-medium text-ink print:text-black">
-                          ${t.serviceFee.toLocaleString()}
+                          {money('USD', t.serviceFeeUSD, t.serviceFee)}
                         </td>
                         <td className="py-3.5 px-4 text-right font-bold text-brand-600 print:text-black">
-                          ${t.cashPaid.toLocaleString()}
+                          {money('UGX', t.cashPaidUGX, t.cashPaid)}
                         </td>
                         <td className="py-3.5 px-4 text-slate-300 font-sans text-xs print:text-black">
                           {(t.cashierId as any)?.name || 'System'}
